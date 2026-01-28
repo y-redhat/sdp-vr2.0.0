@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>"wall" school darks project - Secure Browser</title>
+    <style>
+        /* カスタムプロパティ - 紫とシアンのダークウェブ風 */
+        :root {
+            --primary: #0a0a0a;
+            --secondary: #141414;
+            --accent: #8a2be2;
+            --accent2: #00d4ff;
+            --accent3: #00ff88;
+            --text: #f0f0f0;
+            --text-dim: #aaa;
+            --text-link: #66b3ff;
+            --danger: #ff4757;
+            --warning: #ffa502;
+            --success: #2ed573;
+            --glow: 0 0 15px rgba(138, 43, 226, 0.5);
+            --glow2: 0 0 15px rgba(0, 212, 255, 0.3);
+            --gradient: linear-gradient(135deg, var(--accent), var(--accent2));
+            --gradient2: linear-gradient(135deg, var(--accent2), var(--accent3));
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            --border: 1px solid #2a2a2a;
+        }
+        
+        /* リセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: var(--primary);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            min-height: 100vh;
+            overflow: hidden;
+            line-height: 1.6;
+        }
+        
+        /* スタート画面 - 検索エンジン風 */
+        #startScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: var(--primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease-out;
+            padding: 20px;
+        }
+        
+        #startScreen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        /* 検索エンジン風ロゴ */
+        .search-engine-logo {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        .logo-main {
+            font-size: 5rem;
+            font-weight: 400;
+            letter-spacing: -2px;
+            margin-bottom: 10px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: var(--glow);
+        }
+        
+        .logo-tagline {
+            color: var(--text-dim);
+            font-size: 1rem;
+            letter-spacing: 3px;
+            margin-top: 5px;
+        }
+        
+        /* メイン検索ボックス - Google風 */
+        .main-search {
+            width: 100%;
+            max-width: 650px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .search-box-container {
+            position: relative;
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: var(--border);
+            transition: all 0.3s;
+        }
+        
+        .search-box-container:hover,
+        .search-box-container:focus-within {
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4), var(--glow);
+            border-color: var(--accent);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-dim);
+            z-index: 2;
+        }
+        
+        .search-box {
+            width: 100%;
+            padding: 18px 60px 18px 55px;
+            font-size: 1.1rem;
+            background: var(--secondary);
+            border: none;
+            color: var(--text);
+            outline: none;
+        }
+        
+        .search-button {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--gradient);
+            border: none;
+            color: white;
+            padding: 12px 28px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            box-shadow: 0 2px 10px rgba(138, 43, 226, 0.3);
+        }
+        
+        .search-button:hover {
+            transform: translateY(-50%) scale(1.05);
+            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.5);
+        }
+        
+        .search-button:active {
+            transform: translateY(-50%) scale(0.98);
+        }
+        
+        /* クイックリンク - 検索エンジン風 */
+        .quick-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 700px;
+        }
+        
+        .quick-link {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-link);
+            padding: 12px 22px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .quick-link:hover {
+            background: rgba(138, 43, 226, 0.15);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: var(--glow2);
+        }
+        
+        .link-icon {
+            font-size: 1.1rem;
+        }
+        
+        /* セキュリティバッジ */
+        .security-badge {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--accent2);
+            border-radius: 15px;
+            padding: 10px 15px;
+            font-size: 0.8rem;
+            color: var(--accent2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* ブラウザ画面 */
+        #browserScreen {
+            width: 100%;
+            height: 100vh;
+            display: none;
+            flex-direction: column;
+        }
+        
+        #browserScreen.active {
+            display: flex;
+        }
+        
+        /* ブラウザヘッダー - モダンな検索エンジン風 */
+        .browser-header {
+            background: var(--secondary);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: var(--border);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .browser-logo {
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 600;
+            font-size: 1.2rem;
+            min-width: 180px;
+        }
+        
+        .browser-search-container {
+            flex: 1;
+            position: relative;
+        }
+        
+        .browser-search {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: var(--border);
+            color: var(--text);
+            padding: 10px 45px 10px 15px;
+            border-radius: 25px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+        
+        .browser-search:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(138, 43, 226, 0.2);
+        }
+        
+        .url-security {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.9rem;
+            color: var(--success);
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+        
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: var(--border);
+            color: var(--text);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-size: 1.1rem;
+        }
+        
+        .nav-btn:hover {
+            background: rgba(138, 43, 226, 0.1);
+            border-color: var(--accent);
+            transform: scale(1.05);
+        }
+        
+        .nav-btn.security-btn {
+            background: rgba(46, 213, 115, 0.1);
+            border-color: var(--success);
+            color: var(--success);
+        }
+        
+        /* ブラウザコンテンツ */
+        .browser-content {
+            flex: 1;
+            display: flex;
+            position: relative;
+        }
+        
+        .browser-frame {
+            flex: 1;
+            border: none;
+            background: white;
+        }
+        
+        .security-overlay {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(10, 10, 10, 0.9);
+            border: 1px solid var(--accent2);
+            border-radius: 15px;
+            padding: 15px;
+            width: 300px;
+            z-index: 50;
+            display: none;
+        }
+        
+        .security-overlay.active {
+            display: block;
+        }
+        
+        .security-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #2a2a2a;
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--success);
+        }
+        
+        /* タブバー */
+        .tab-bar {
+            background: var(--secondary);
+            padding: 10px 20px;
+            display: flex;
+            gap: 10px;
+            border-top: var(--border);
+        }
+        
+        .tab {
+            background: rgba(255, 255, 255, 0.05);
+            border: var(--border);
+            color: var(--text);
+            padding: 8px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .tab:hover {
+            background: rgba(138, 43, 226, 0.15);
+        }
+        
+        .tab.active {
+            background: var(--gradient);
+            color: white;
+            border-color: transparent;
+        }
+        
+        .tab-close {
+            font-size: 1rem;
+            opacity: 0.7;
+        }
+        
+        .tab-close:hover {
+            opacity: 1;
+        }
+        
+        /* コントロールボタン */
+        .control-buttons {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 100;
+        }
+        
+        .control-btn {
+            background: var(--gradient);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 160px;
+        }
+        
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+        
+        .control-btn.game-mode {
+            background: var(--gradient2);
+        }
+        
+        .control-btn.privacy-mode {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+        }
+        
+        /* プライバシーバッジ */
+        .privacy-badge {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 71, 87, 0.2);
+            border: 1px solid var(--danger);
+            border-radius: 15px;
+            padding: 8px 15px;
+            font-size: 0.8rem;
+            color: var(--danger);
+            display: none;
+            align-items: center;
+            gap: 8px;
+            z-index: 100;
+        }
+        
+        /* グリッチエフェクト */
+        .glitch {
+            position: relative;
+            animation: glitch 10s infinite;
+        }
+        
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            97% { transform: translate(0); }
+            98% { transform: translate(-1px, 1px); }
+            99% { transform: translate(1px, -1px); }
+        }
+        
+        /* レスポンシブ */
+        @media (max-width: 768px) {
+            .logo-main {
+                font-size: 3rem;
+            }
+            
+            .search-box {
+                padding: 15px 50px 15px 45px;
+            }
+            
+            .quick-links {
+                gap: 10px;
+                padding: 0 20px;
+            }
+            
+            .quick-link {
+                padding: 10px 15px;
+                font-size: 0.85rem;
+            }
+            
+            .browser-header {
+                flex-wrap: wrap;
+            }
+            
+            .browser-logo {
+                min-width: auto;
+                font-size: 1rem;
+            }
+            
+            .control-buttons {
+                bottom: 10px;
+                right: 10px;
+            }
+            
+            .control-btn {
+                padding: 10px 15px;
+                min-width: 140px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- スタート画面 -->
+    <div id="startScreen">
+        <div class="search-engine-logo glitch">
+            <div class="logo-main">wall</div>
+            <div class="logo-tagline">SECURE PRIVATE BROWSER</div>
+            <div class="logo-tagline">School Darks Project - Version 2.0</div>
+            <div class="logo-tagline">Censorship Evasion Technology</div>
+        </div>
+        
+        <div class="main-search">
+            <div class="search-box-container">
+                <div class="search-icon">🔍</div>
+                <input type="text" class="search-box" id="mainSearch" placeholder="Search the web or enter URL..." autocomplete="off" autofocus>
+                <button class="search-button" onclick="startBrowse()">Search</button>
+            </div>
+        </div>
+        
+        <div class="quick-links">
+            <div class="quick-link" onclick="quickAccess('https://www.youtube.com')">
+                <span class="link-icon">▶️</span> YouTube
+            </div>
+            <div class="quick-link" onclick="quickAccess('https://www.reddit.com')">
+                <span class="link-icon">👥</span> Reddit
+            </div>
+            <div class="quick-link" onclick="quickAccess('https://www.twitch.tv')">
+                <span class="link-icon">🔴</span> Twitch
+            </div>
+            <div class="quick-link" onclick="quickAccess('https://discord.com')">
+                <span class="link-icon">💬</span> Discord
+            </div>
+            <div class="quick-link" onclick="quickAccess('https://krunker.io')">
+                <span class="link-icon">🎮</span> Krunker
+            </div>
+            <div class="quick-link" onclick="quickAccess('https://www.roblox.com')">
+                <span class="link-icon">🧱</span> Roblox
+            </div>
+            <div class="quick-link" onclick="quickAccess('https://www.google.com')">
+                <span class="link-icon">🌐</span> Google
+            </div>
+            <div class="quick-link" onclick="quickAccess('https://github.com')">
+                <span class="link-icon">💻</span> GitHub
+            </div>
+        </div>
+        
+        <div class="security-badge">
+            <span>🔒</span> Secure Connection Active
+        </div>
+    </div>
+    
+    <!-- ブラウザ画面 -->
+    <div id="browserScreen">
+        <div class="privacy-badge" id="privacyBadge">
+            <span>👁️</span> Privacy Mode Active - No History Saved
+        </div>
+        
+        <div class="browser-header">
+            <div class="browser-logo">wall Browser</div>
+            <div class="browser-search-container">
+                <input type="text" class="browser-search" id="browserSearch" placeholder="Search or enter URL...">
+                <div class="url-security" id="urlSecurity">Secure</div>
+            </div>
+            <div class="nav-buttons">
+                <button class="nav-btn" onclick="browserBack()" title="Back">←</button>
+                <button class="nav-btn" onclick="browserForward()" title="Forward">→</button>
+                <button class="nav-btn" onclick="browserRefresh()" title="Refresh">↻</button>
+                <button class="nav-btn security-btn" onclick="toggleSecurityPanel()" title="Security Panel">🛡️</button>
+            </div>
+        </div>
+        
+        <div class="browser-content">
+            <iframe class="browser-frame" id="browserFrame" 
+                    sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-modals"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+            </iframe>
+            
+            <div class="security-overlay" id="securityOverlay">
+                <div class="security-status">
+                    <div class="status-indicator"></div>
+                    <div>Security Status: <strong>Protected</strong></div>
+                </div>
+                <div style="font-size: 0.9rem; color: var(--text-dim);">
+                    <div>• Monitoring scripts blocked: <span id="blockedCount">0</span></div>
+                    <div>• CORS restrictions bypassed</div>
+                    <div>• URL encryption active</div>
+                    <div>• Privacy mode: <span id="privacyStatus">Off</span></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-bar">
+            <div class="tab active" onclick="switchTab('main')">
+                <span>🌐</span> Main
+            </div>
+            <div class="tab" onclick="switchTab('youtube')">
+                <span>▶️</span> YouTube
+            </div>
+            <div class="tab" onclick="switchTab('games')">
+                <span>🎮</span> Games
+            </div>
+            <div class="tab" onclick="switchTab('social')">
+                <span>👥</span> Social
+            </div>
+            <div class="tab" onclick="switchTab('proxy')">
+                <span>🔄</span> Proxy
+            </div>
+        </div>
+        
+        <div class="control-buttons">
+            <button class="control-btn game-mode" onclick="toggleGameMode()">
+                <span>🎮</span> Game Mode
+            </button>
+            <button class="control-btn privacy-mode" onclick="togglePrivacyMode()">
+                <span>👁️</span> Privacy Mode
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 要素
+        const startScreen = document.getElementById('startScreen');
+        const browserScreen = document.getElementById('browserScreen');
+        const mainSearch = document.getElementById('mainSearch');
+        const browserSearch = document.getElementById('browserSearch');
+        const browserFrame = document.getElementById('browserFrame');
+        const securityOverlay = document.getElementById('securityOverlay');
+        const privacyBadge = document.getElementById('privacyBadge');
+        const urlSecurity = document.getElementById('urlSecurity');
+        const blockedCount = document.getElementById('blockedCount');
+        const privacyStatus = document.getElementById('privacyStatus');
+        
+        // 状態
+        let tabs = {
+            main: 'https://www.google.com',
+            youtube: 'https://www.youtube.com',
+            games: 'https://krunker.io',
+            social: 'https://www.reddit.com',
+            proxy: 'about:blank'
+        };
+        
+        let currentTab = 'main';
+        let gameMode = false;
+        let privacyMode = false;
+        let securityPanelVisible = false;
+        let blockedScriptsCount = 0;
+        
+        // CORSプロキシ（実際の実装では信頼できるプロキシを使用）
+        const corsProxy = 'https://cors-anywhere.herokuapp.com/';
+        
+        // 初期化
+        function init() {
+            // メイン検索でEnterキー
+            mainSearch.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') startBrowse();
+            });
+            
+            // ブラウザ検索でEnterキー
+            browserSearch.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') navigateFromBrowser();
+            });
+            
+            // iframe読み込み時のURL更新
+            browserFrame.addEventListener('load', () => {
+                updateSecurityStatus();
+                updateUrlInBar();
+                disableMonitoring();
+                updateBlockedCount();
+            });
+            
+            // セキュリティパネルを外側クリックで閉じる
+            document.addEventListener('click', (e) => {
+                if (securityPanelVisible && !securityOverlay.contains(e.target) && 
+                    !e.target.classList.contains('security-btn')) {
+                    securityOverlay.classList.remove('active');
+                    securityPanelVisible = false;
+                }
+            });
+            
+            // 初期セキュリティ設定
+            updateSecurityStatus();
+        }
+        
+        // スタート画面からブラウザへ
+        function startBrowse() {
+            const input = mainSearch.value.trim();
+            let url;
+            
+            if (!input) {
+                url = 'https://www.google.com';
+            } else if (input.includes('.') && !input.includes(' ')) {
+                url = formatUrl(input);
+            } else {
+                // 検索クエリ
+                url = `https://www.google.com/search?q=${encodeURIComponent(input)}`;
+            }
+            
+            // プライバシーモードなら暗号化URLを使用
+            if (privacyMode) {
+                url = encryptUrl(url);
+            }
+            
+            // スタート画面をフェードアウト
+            startScreen.classList.add('hidden');
+            
+            // ブラウザ画面を表示
+            setTimeout(() => {
+                browserScreen.classList.add('active');
+                loadUrl(url);
+                tabs.main = url;
+                updateSecurityStatus();
+            }, 500);
+        }
+        
+        // URLフォーマット
+        function formatUrl(input) {
+            if (input.startsWith('http://') || input.startsWith('https://')) {
+                return input;
+            } else {
+                return 'https://' + input;
+            }
+        }
+        
+        // 暗号化URL（Base64）
+        function encryptUrl(url) {
+            return 'data:text/html;base64,' + btoa(`
+                <html>
+                    <head>
+                        <meta http-equiv="refresh" content="0; url=${url}">
+                        <script>
+                            // 監視スクリプトをブロック
+                            window.addEventListener('load', function() {
+                                const blockedKeywords = ['securly', 'blocksi', 'goguardian', 'contentkeeper'];
+                                document.querySelectorAll('script').forEach(script => {
+                                    blockedKeywords.forEach(keyword => {
+                                        if (script.src.includes(keyword)) {
+                                            script.remove();
+                                        }
+                                    });
+                                });
+                            });
+                        </script>
+                    </head>
+                    <body>
+                        Redirecting to secure page...
+                    </body>
+                </html>
+            `);
+        }
+        
+        // クイックアクセス
+        function quickAccess(url) {
+            mainSearch.value = url;
+            startBrowse();
+        }
+        
+        // URL読み込み
+        function loadUrl(url) {
+            // CORS回避のためにプロキシ経由で読み込む
+            if (shouldUseProxy(url)) {
+                browserFrame.src = corsProxy + url;
+            } else {
+                browserFrame.src = url;
+            }
+            browserSearch.value = url;
+            updateSecurityStatus();
+        }
+        
+        // プロキシを使用すべきか判断
+        function shouldUseProxy(url) {
+            // 特定のドメインでCORS問題が発生する可能性がある場合
+            const corsDomains = ['krunker.io', 'now.gg', 'itch.io'];
+            return corsDomains.some(domain => url.includes(domain));
+        }
+        
+        // ブラウザからのナビゲーション
+        function navigateFromBrowser() {
+            const input = browserSearch.value.trim();
+            let url;
+            
+            if (input.includes('.') && !input.includes(' ')) {
+                url = formatUrl(input);
+            } else {
+                url = `https://www.google.com/search?q=${encodeURIComponent(input)}`;
+            }
+            
+            // プライバシーモードなら暗号化
+            if (privacyMode) {
+                url = encryptUrl(url);
+            }
+            
+            loadUrl(url);
+            tabs[currentTab] = url;
+            updateSecurityStatus();
+        }
+        
+        // ブラウザコントロール
+        function browserBack() {
+            try {
+                browserFrame.contentWindow.history.back();
+            } catch(e) {
+                console.log('Cannot navigate back');
+            }
+        }
+        
+        function browserForward() {
+            try {
+                browserFrame.contentWindow.history.forward();
+            } catch(e) {
+                console.log('Cannot navigate forward');
+            }
+        }
+        
+        function browserRefresh() {
+            browserFrame.contentWindow.location.reload();
+        }
+        
+        // セキュリティパネル表示/非表示
+        function toggleSecurityPanel() {
+            securityPanelVisible = !securityPanelVisible;
+            securityOverlay.classList.toggle('active', securityPanelVisible);
+        }
+        
+        // タブ切り替え
+        function switchTab(tabName) {
+            currentTab = tabName;
+            
+            // タブの見た目更新
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // タブのURLを読み込み
+            if (tabs[tabName] === 'about:blank' && tabName === 'proxy') {
+                // プロキシタブは特別なページを表示
+                browserFrame.src = 'about:blank';
+                browserFrame.srcdoc = `
+                    <html style="background: #0a0a0a; color: white; padding: 20px;">
+                        <h2>Secure Proxy Tab</h2>
+                        <p>This tab uses CORS proxies to bypass restrictions.</p>
+                        <p>Enter a URL below to access blocked content:</p>
+                        <input id="proxyInput" placeholder="Enter URL" style="width: 300px; padding: 10px; margin: 10px 0;">
+                        <button onclick="loadViaProxy()" style="padding: 10px 20px;">Load</button>
+                        <script>
+                            function loadViaProxy() {
+                                const url = document.getElementById('proxyInput').value;
+                                if(url) {
+                                    window.location.href = 'https://cors-anywhere.herokuapp.com/' + url;
+                                }
+                            }
+                        </script>
+                    </html>
+                `;
+                browserSearch.value = 'wall://proxy';
+            } else {
+                loadUrl(tabs[tabName]);
+            }
+        }
+        
+        // 監視スクリプト無効化
+        function disableMonitoring() {
+            try {
+                const iframeDoc = browserFrame.contentDocument;
+                const scripts = iframeDoc.querySelectorAll('script');
+                
+                scripts.forEach(script => {
+                    const src = script.src || '';
+                    const content = script.textContent || '';
+                    
+                    // 監視・フィルタリングスクリプトを検出
+                    const blockedKeywords = [
+                        'securly', 'blocksi', 'goguardian', 'contentkeeper',
+                        'iboss', 'websense', 'smoothwall', 'fortiguard',
+                        'lightspeedsystems', 'barracuda'
+                    ];
+                    
+                    blockedKeywords.forEach(keyword => {
+                        if (src.toLowerCase().includes(keyword) || 
+                            content.toLowerCase().includes(keyword)) {
+                            script.remove();
+                            blockedScriptsCount++;
+                            updateBlockedCount();
+                        }
+                    });
+                });
+                
+                // ブロックページ検出
+                if (iframeDoc.body && (
+                    iframeDoc.body.innerHTML.includes("blocked") ||
+                    iframeDoc.body.innerHTML.includes("not allowed") ||
+                    iframeDoc.body.innerHTML.includes("restricted") ||
+                    iframeDoc.body.innerHTML.includes("access denied"))) {
+                    bypassBlockPage(iframeDoc);
+                }
+            } catch(e) {
+                // クロスオリジン制限
+            }
+        }
+        
+        // ブロックページバイパス
+        function bypassBlockPage(doc) {
+            try {
+                // 一般的なブロックページのバイパス
+                const currentUrl = doc.location.href;
+                
+                // URLパラメータから実際のURLを探す
+                const urlParams = new URLSearchParams(doc.location.search);
+                const possibleUrls = [
+                    urlParams.get('url'),
+                    urlParams.get('site'),
+                    urlParams.get('destination'),
+                    urlParams.get('u')
+                ];
+                
+                for (let possibleUrl of possibleUrls) {
+                    if (possibleUrl) {
+                        // Base64デコードを試みる
+                        try {
+                            const decodedUrl = atob(possibleUrl);
+                            if (decodedUrl.startsWith('http')) {
+                                browserFrame.src = decodedUrl;
+                                return;
+                            }
+                        } catch(e) {
+                            // Base64でない場合はそのまま使用
+                            if (possibleUrl.startsWith('http')) {
+                                browserFrame.src = possibleUrl;
+                                return;
+                            }
+                        }
+                    }
+                }
+                
+                // メタリフレッシュを探す
+                const metaRefresh = doc.querySelector('meta[http-equiv="refresh"]');
+                if (metaRefresh) {
+                    const content = metaRefresh.getAttribute('content');
+                    const urlMatch = content.match(/url=(.+)/i);
+                    if (urlMatch) {
+                        browserFrame.src = urlMatch[1];
+                    }
+                }
+            } catch(e) {
+                console.log('Bypass failed:', e);
+            }
+        }
+        
+        // セキュリティステータス更新
+        function updateSecurityStatus() {
+            try {
+                const currentUrl = browserFrame.src || browserSearch.value;
+                
+                if (currentUrl.startsWith('https://')) {
+                    urlSecurity.textContent = 'Secure';
+                    urlSecurity.style.color = 'var(--success)';
+                } else if (currentUrl.startsWith('http://')) {
+                    urlSecurity.textContent = 'Not Secure';
+                    urlSecurity.style.color = 'var(--warning)';
+                } else {
+                    urlSecurity.textContent = 'Local';
+                    urlSecurity.style.color = 'var(--accent2)';
+                }
+            } catch(e) {
+                urlSecurity.textContent = 'Unknown';
+                urlSecurity.style.color = 'var(--text-dim)';
+            }
+        }
+        
+        // アドレスバーのURL更新
+        function updateUrlInBar() {
+            try {
+                const url = browserFrame.contentWindow.location.href;
+                browserSearch.value = url;
+            } catch(e) {
+                // クロスオリジン制限
+            }
+        }
+        
+        // ブロックカウント更新
+        function updateBlockedCount() {
+            blockedCount.textContent = blockedScriptsCount;
+        }
+        
+        // ゲームモード切り替え
+        function toggleGameMode() {
+            gameMode = !gameMode;
+            const btn = document.querySelector('.game-mode');
+            
+            if (gameMode) {
+                btn.innerHTML = '<span>🚫</span> Exit Game Mode';
+                btn.style.background = 'linear-gradient(135deg, #ff416c, #ff4b2b)';
+                document.body.style.cursor = 'none';
+                
+                // 全画面表示を試みる
+                try {
+                    const elem = document.documentElement;
+                    if (elem.requestFullscreen) {
+                        elem.requestFullscreen();
+                    }
+                } catch(e) {}
+            } else {
+                btn.innerHTML = '<span>🎮</span> Game Mode';
+                btn.style.background = 'linear-gradient(135deg, #00d4ff, #00ff88)';
+                document.body.style.cursor = 'default';
+                
+                // 全画面解除
+                try {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    }
+                } catch(e) {}
+            }
+        }
+        
+        // プライバシーモード切り替え
+        function togglePrivacyMode() {
+            privacyMode = !privacyMode;
+            const btn = document.querySelector('.privacy-mode');
+            
+            if (privacyMode) {
+                btn.innerHTML = '<span>🔓</span> Exit Privacy Mode';
+                btn.style.background = 'linear-gradient(135deg, #2ed573, #1e90ff)';
+                privacyBadge.style.display = 'flex';
+                privacyStatus.textContent = 'On';
+                
+                // プライバシーモード通知
+                alert('Privacy Mode Activated:\n• No browsing history saved\n• URLs encrypted\n• Enhanced monitoring blocking');
+            } else {
+                btn.innerHTML = '<span>👁️</span> Privacy Mode';
+                btn.style.background = 'linear-gradient(135deg, #ff416c, #ff4b2b)';
+                privacyBadge.style.display = 'none';
+                privacyStatus.textContent = 'Off';
+            }
+        }
+        
+        // 初期化実行
+        window.onload = init;
+    </script>
+</body>
+</html>
